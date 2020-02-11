@@ -7,7 +7,9 @@ module.exports = function (RED) {
     var client = null;
     var isConnected = false;
 
-    function _connectClient(callback){
+    function _connectClient(callback, opts){
+        opts = opts || {}
+
         if(isConnected) {
             callback(client);
             return;
@@ -35,7 +37,7 @@ module.exports = function (RED) {
         });
 
         //node.log("SSH Key:"+config.ssh);
-        client.connect(options);
+        client.connect(Objects.assign(options, opts));
     }
 
     function NodeRedSsh(config) {
@@ -93,7 +95,7 @@ module.exports = function (RED) {
             }
             node.debug("Getting client connection...");
             _connectClient((conn) => {
-                conn.exec(msg.payload, (err, stream) => {
+                conn.exec(msg.payload.command, (err, stream) => {
                     node.log("Ssh client error in input.");
                     if (err) throw err;
                     stream.on('close', function (code, signal) {
@@ -108,10 +110,10 @@ module.exports = function (RED) {
                         notify(2, data);
                     });
                 });
-            });
+            }, msg.payload);
         });
 
-        _connectClient((conn) => { node.debug("SSH-CLI initial connection succeeded."); });
+        //_connectClient((conn) => { node.debug("SSH-CLI initial connection succeeded."); });
 
         node.debug("SSH-CLI setup done.");
     }
