@@ -37,7 +37,7 @@ module.exports = function (RED) {
         });
 
         //node.log("SSH Key:"+config.ssh);
-        client.connect(Objects.assign(options, opts));
+        client.connect(Object.assign(options, opts));
     }
 
     function NodeRedSsh(config) {
